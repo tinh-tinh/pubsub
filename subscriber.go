@@ -71,6 +71,10 @@ func (s *Subscriber) Signal(msg *Message) {
 	}
 }
 
+func (s *Subscriber) GetMessages() chan *Message {
+	return s.Messages
+}
+
 func (s *Subscriber) Listen() {
 	for {
 		if msg, ok := <-s.Messages; ok {
