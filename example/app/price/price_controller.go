@@ -10,7 +10,7 @@ func Controller(module *core.DynamicModule) *core.DynamicController {
 
 	ctrl.Post("", func(ctx core.Ctx) error {
 		broker := pubsub.InjectBroker(module)
-		go broker.Publish("haha", "BTC")
+		go broker.Publish("BTC", "haha")
 		return ctx.JSON(core.Map{
 			"data": "ok",
 		})
