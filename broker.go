@@ -14,8 +14,8 @@ type BrokerOptions struct {
 }
 
 type Broker struct {
-	Subscribers Subscribers
-	Topics      map[string]Subscribers
+	subscribers Subscribers
+	topics      map[string]Subscribers
 	mutex       sync.RWMutex
 }
 
@@ -29,8 +29,8 @@ type Broker struct {
 // subscribers of that topic will receive the message.
 func NewBroker() *Broker {
 	return &Broker{
-		Subscribers: Subscribers{},
-		Topics:      map[string]Subscribers{},
+		subscribers: Subscribers{},
+		topics:      map[string]Subscribers{},
 	}
 }
 
@@ -45,7 +45,7 @@ func (b *Broker) AddSubscriber() *Subscriber {
 	defer b.mutex.Unlock()
 
 	id, s := NewSubscriber()
-	b.Subscribers[id] = s
+	b.subscribers[id] = s
 	return s
 }
 
@@ -60,12 +60,12 @@ func (b *Broker) Subscribe(s *Subscriber, topic string) {
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
 
-	if b.Topics[topic] == nil {
-		b.Topics[topic] = Subscribers{}
+	if b.topics[topic] == nil {
+		b.topics[topic] = Subscribers{}
 	}
 
 	s.AddTopic(topic)
-	b.Topics[topic][s.ID] = s
+	b.topics[topic][s.ID] = s
 	fmt.Printf("%s subscribed for topic: %s\n", s.ID, topic)
 }
 
@@ -81,7 +81,7 @@ func (b *Broker) Unsubscribe(s *Subscriber, topic string) {
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
 
-	delete(b.Topics[topic], s.ID)
+	delete(b.topics[topic], s.ID)
 	s.RemoveTopic(topic)
 	fmt.Printf("%s unsubscribed for topic: %s\n", s.ID, topic)
 }
@@ -95,12 +95,12 @@ func (b *Broker) Unsubscribe(s *Subscriber, topic string) {
 // The subscriber is then removed from the broker and the resources associated
 // with the subscriber are released.
 func (b *Broker) RemoveSubscriber(s *Subscriber) {
-	for topic := range s.Topics {
+	for topic := range s.topics {
 		b.Unsubscribe(s, topic)
 	}
 
 	b.mutex.Lock()
-	delete(b.Subscribers, s.ID)
+	delete(b.subscribers, s.ID)
 	b.mutex.Unlock()
 
 	s.Destruct()
@@ -114,7 +114,7 @@ func (b *Broker) GetSubscribers(topic string) int {
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
 
-	return len(b.Topics[topic])
+	return len(b.topics[topic])
 }
 
 // Broadcast sends the given message to all subscribers in all topics.
@@ -123,8 +123,8 @@ func (b *Broker) GetSubscribers(topic string) int {
 //
 // The message is sent to the subscribers asynchronously.
 func (b *Broker) Broadcast(msg string) {
-	for topic := range b.Topics {
-		for _, s := range b.Topics[topic] {
+	for topic := range b.topics {
+		for _, s := range b.topics[topic] {
 			m := NewMessage(topic, msg)
 			go (func(s *Subscriber) {
 				s.Signal(m)
@@ -140,12 +140,12 @@ func (b *Broker) Broadcast(msg string) {
 // inactive, it will not receive the message.
 func (b *Broker) Publish(topic string, msg string) {
 	b.mutex.RLock()
-	bTopics := b.Topics[topic]
+	bTopics := b.topics[topic]
 	b.mutex.RUnlock()
 
 	for _, s := range bTopics {
 		m := NewMessage(topic, msg)
-		if !s.Active {
+		if !s.active {
 			return
 		}
 
