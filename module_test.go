@@ -22,20 +22,17 @@ func Test_Module(t *testing.T) {
 	service := func(module *core.DynamicModule) *core.DynamicProvider {
 		service := module.NewProvider(core.ProviderOptions{
 			Name: PRICE,
-			Factory: func(param ...interface{}) interface{} {
-				subscriber := param[0].(*pubsub.Subscriber)
+			Factory: pubsub.Listener(module, func(s *pubsub.Subscriber) interface{} {
 				priceService := &PriceService{}
 				go (func() {
-					// sleep for 5 sec, and then subscribe for topic DOT for s2
-					msg, ok := <-subscriber.GetMessages()
+					msg, ok := <-s.GetMessages()
 					if ok {
 						priceService.Message = msg.GetContent()
 					}
 				})()
 
 				return priceService
-			},
-			Inject: []core.Provide{pubsub.SUBSCRIBER},
+			}),
 		})
 
 		return service
