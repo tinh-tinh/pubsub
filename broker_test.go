@@ -59,7 +59,7 @@ func Test_Pubsub(t *testing.T) {
 	fmt.Println(sub.GetMessages())
 }
 
-func Test_Options(t *testing.T) {
+func Test_MaxSubscribers(t *testing.T) {
 	broker := pubsub.NewBroker(pubsub.BrokerOptions{
 		MaxSubscribers: 10,
 	})
@@ -72,4 +72,20 @@ func Test_Options(t *testing.T) {
 			require.Nil(t, s)
 		}
 	}
+}
+
+func Test_Pattern(t *testing.T) {
+	broker := pubsub.NewBroker(pubsub.BrokerOptions{
+		Wildcard:  true,
+		Delimiter: ".",
+	})
+
+	sub := broker.AddSubscriber()
+	topic := "orders.*"
+	broker.Subscribe(sub, topic)
+
+	go sub.Listen()
+	go (func() {
+		broker.Publish("orders.created", "hello")
+	})()
 }

@@ -2,6 +2,7 @@ package pubsub
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 )
 
@@ -155,10 +156,22 @@ func (b *Broker) Broadcast(msg string) {
 // inactive, it will not receive the message.
 func (b *Broker) Publish(topic string, msg string) {
 	b.mutex.RLock()
-	bTopics := b.topics[topic]
+	topics := []string{topic}
+	if b.opt.Wildcard {
+		patterns := strings.Split(topic, b.opt.Delimiter)
+		for i := 0; i < len(patterns)-1; i++ {
+			topics = append(topics, fmt.Sprintf("%s%s*", patterns[i], b.opt.Delimiter))
+		}
+	}
+	var subscribers []*Subscriber
+	for _, tp := range topics {
+		for _, subscriber := range b.topics[tp] {
+			subscribers = append(subscribers, subscriber)
+		}
+	}
 	b.mutex.RUnlock()
 
-	for _, s := range bTopics {
+	for _, s := range subscribers {
 		m := NewMessage(topic, msg)
 		if !s.active {
 			return
