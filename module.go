@@ -81,3 +81,10 @@ func InjectSubscriber(module *core.DynamicModule) *Subscriber {
 	}
 	return subscriber
 }
+
+func Listener(module *core.DynamicModule, fnc func(*Subscriber) interface{}) core.Factory {
+	return func(param ...interface{}) interface{} {
+		subscriber := InjectSubscriber(module)
+		return fnc(subscriber)
+	}
+}

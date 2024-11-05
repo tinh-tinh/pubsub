@@ -15,8 +15,6 @@ type BrokerOptions struct {
 	Delimiter string
 	// the maximum number of subscribers per topic
 	MaxSubscribers int
-	// set this to `true` to ignore errors
-	IgnoreErrors bool
 }
 
 type Broker struct {
