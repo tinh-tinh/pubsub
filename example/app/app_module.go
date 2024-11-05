@@ -10,7 +10,6 @@ func Module() *core.DynamicModule {
 	module := core.NewModule(core.NewModuleOptions{
 		Imports: []core.Module{
 			pubsub.ForRoot(),
-			pubsub.ForFeature("BTC", "ETH", "SOL"),
 			price.Module,
 		},
 	})

@@ -9,9 +9,9 @@ import (
 
 type Subscriber struct {
 	ID       string          // ID of subscriber
-	Messages chan *Message   // Message channel
-	Topics   map[string]bool // Topics it is subscribed to
-	Active   bool            // It given subscriber is active
+	messages chan *Message   // Message channel
+	topics   map[string]bool // Topics it is subscribed to
+	active   bool            // It given subscriber is active
 	mutex    sync.RWMutex
 }
 
@@ -30,9 +30,9 @@ func NewSubscriber() (string, *Subscriber) {
 	id := fmt.Sprintf("%X0%X", b[0:4], b[4:8])
 	return id, &Subscriber{
 		ID:       id,
-		Messages: make(chan *Message),
-		Topics:   map[string]bool{},
-		Active:   true,
+		messages: make(chan *Message),
+		topics:   map[string]bool{},
+		active:   true,
 	}
 }
 
@@ -46,7 +46,7 @@ func NewSubscriber() (string, *Subscriber) {
 func (s *Subscriber) AddTopic(topic string) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
-	s.Topics[topic] = true
+	s.topics[topic] = true
 }
 
 // RemoveTopic removes the given topic from the subscriber.
@@ -58,7 +58,7 @@ func (s *Subscriber) AddTopic(topic string) {
 func (s *Subscriber) RemoveTopic(topic string) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
-	delete(s.Topics, topic)
+	delete(s.topics, topic)
 }
 
 // GetTopic returns the list of topics to which the subscriber is subscribed.
@@ -67,7 +67,7 @@ func (s *Subscriber) GetTopic() []string {
 	defer s.mutex.RUnlock()
 
 	topics := []string{}
-	for topic := range s.Topics {
+	for topic := range s.topics {
 		topics = append(topics, topic)
 	}
 	return topics
@@ -81,8 +81,8 @@ func (s *Subscriber) Destruct() {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	s.Active = false
-	close(s.Messages)
+	s.active = false
+	close(s.messages)
 }
 
 // Signal sends the given message to the subscriber.
@@ -93,8 +93,8 @@ func (s *Subscriber) Signal(msg *Message) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	if s.Active {
-		s.Messages <- msg
+	if s.active {
+		s.messages <- msg
 		// fmt.Printf("%v Receiver message %s from topic: %s\n", time.Now().Format("2006-01-01 08:00:00"), msg.GetContent(), msg.GetTopic())
 	}
 }
@@ -103,7 +103,7 @@ func (s *Subscriber) Signal(msg *Message) {
 //
 // The channel can be used to receive messages sent to the subscriber.
 func (s *Subscriber) GetMessages() chan *Message {
-	return s.Messages
+	return s.messages
 }
 
 // Listen is a goroutine that listens to the subscriber's message channel.
@@ -112,7 +112,7 @@ func (s *Subscriber) GetMessages() chan *Message {
 // subscriber's message channel. Each message is printed to the standard output.
 func (s *Subscriber) Listen() {
 	for {
-		if msg, ok := <-s.Messages; ok {
+		if msg, ok := <-s.messages; ok {
 			fmt.Printf("Subscriber %s, received: %s from topic: %s\n", s.ID, msg.GetContent(), msg.GetTopic())
 		}
 	}
