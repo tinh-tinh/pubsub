@@ -58,3 +58,18 @@ func Test_Pubsub(t *testing.T) {
 
 	fmt.Println(sub.GetMessages())
 }
+
+func Test_Options(t *testing.T) {
+	broker := pubsub.NewBroker(pubsub.BrokerOptions{
+		MaxSubscribers: 10,
+	})
+
+	for i := 0; i < 15; i++ {
+		s := broker.AddSubscriber()
+		if i < 10 {
+			require.NotNil(t, s)
+		} else {
+			require.Nil(t, s)
+		}
+	}
+}

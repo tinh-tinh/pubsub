@@ -8,15 +8,21 @@ import (
 type Subscribers map[string]*Subscriber
 
 type BrokerOptions struct {
-	Wildcard    bool
-	Delimiter   string
-	NewListener bool
+	// set this to `true` to use wildcards
+	Wildcard bool
+	// the delimiter used to segment namespaces
+	Delimiter string
+	// the maximum number of subscribers per topic
+	MaxSubscribers int
+	// set this to `true` to ignore errors
+	IgnoreErrors bool
 }
 
 type Broker struct {
 	subscribers Subscribers
 	topics      map[string]Subscribers
 	mutex       sync.RWMutex
+	opt         BrokerOptions
 }
 
 // NewBroker returns a new instance of Broker.
@@ -27,11 +33,16 @@ type Broker struct {
 // When a subscriber subscribes to a topic, the subscriber is added to a list
 // of subscribers for that topic. When a message is published to a topic, all
 // subscribers of that topic will receive the message.
-func NewBroker() *Broker {
-	return &Broker{
+func NewBroker(opt ...BrokerOptions) *Broker {
+	broker := &Broker{
 		subscribers: Subscribers{},
 		topics:      map[string]Subscribers{},
 	}
+	if len(opt) > 0 {
+		broker.opt = opt[0]
+	}
+
+	return broker
 }
 
 // AddSubscriber creates a new subscriber and adds it to the broker.
@@ -43,6 +54,10 @@ func NewBroker() *Broker {
 func (b *Broker) AddSubscriber() *Subscriber {
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
+
+	if b.opt.MaxSubscribers != 0 && len(b.subscribers)+1 > b.opt.MaxSubscribers {
+		return nil
+	}
 
 	id, s := NewSubscriber()
 	b.subscribers[id] = s
