@@ -1,7 +1,7 @@
 package pubsub
 
 import (
-	"github.com/tinh-tinh/tinhtinh/core"
+	"github.com/tinh-tinh/tinhtinh/v2/core"
 )
 
 const BROKER core.Provide = "broker"
@@ -12,8 +12,8 @@ const SUBSCRIBER core.Provide = "subscriber"
 // The module provides the broker as a dependency to other modules. The broker
 // is the central entity of the pub/sub pattern. It is responsible for managing
 // the subscribers and topics.
-func ForRoot() core.Module {
-	return func(module *core.DynamicModule) *core.DynamicModule {
+func ForRoot() core.Modules {
+	return func(module core.Module) core.Module {
 		pubModule := module.New(core.NewModuleOptions{})
 		pubModule.NewProvider(core.ProviderOptions{
 			Name:  BROKER,
@@ -31,7 +31,7 @@ func ForRoot() core.Module {
 // managing the subscribers and topics. The broker is injected into a module
 // by calling ForRoot() and then can be retrieved from the module by calling
 // InjectBroker.
-func InjectBroker(module *core.DynamicModule) *Broker {
+func InjectBroker(module core.Module) *Broker {
 	broker, ok := module.Ref(BROKER).(*Broker)
 	if !ok {
 		return nil
@@ -45,8 +45,8 @@ func InjectBroker(module *core.DynamicModule) *Broker {
 // to the given topics. The subscriber is associated with the broker, which is injected
 // into the module. This allows the subscriber to receive messages published to the
 // specified topics.
-func ForFeature(topics ...string) core.Module {
-	return func(module *core.DynamicModule) *core.DynamicModule {
+func ForFeature(topics ...string) core.Modules {
+	return func(module core.Module) core.Module {
 		subModule := module.New(core.NewModuleOptions{})
 		subModule.NewProvider(core.ProviderOptions{
 			Name: SUBSCRIBER,
@@ -74,7 +74,7 @@ func ForFeature(topics ...string) core.Module {
 // is subscribed to. The subscriber is injected into a module by calling
 // ForFeature() and then can be retrieved from the module by calling
 // InjectSubscriber.
-func InjectSubscriber(module *core.DynamicModule) *Subscriber {
+func InjectSubscriber(module core.Module) *Subscriber {
 	subscriber, ok := module.Ref(SUBSCRIBER).(*Subscriber)
 	if !ok {
 		return nil
@@ -82,7 +82,7 @@ func InjectSubscriber(module *core.DynamicModule) *Subscriber {
 	return subscriber
 }
 
-func Listener(module *core.DynamicModule, fnc func(*Subscriber) interface{}) core.Factory {
+func Listener(module core.Module, fnc func(*Subscriber) interface{}) core.Factory {
 	return func(param ...interface{}) interface{} {
 		subscriber := InjectSubscriber(module)
 		return fnc(subscriber)
