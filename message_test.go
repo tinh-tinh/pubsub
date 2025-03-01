@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tinh-tinh/pubsub"
+	"github.com/tinh-tinh/pubsub/v2"
 )
 
 func Test_NewMessage(t *testing.T) {
