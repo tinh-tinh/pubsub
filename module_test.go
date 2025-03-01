@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tinh-tinh/pubsub"
-	"github.com/tinh-tinh/tinhtinh/core"
+	"github.com/tinh-tinh/pubsub/v2"
+	"github.com/tinh-tinh/tinhtinh/v2/core"
 )
 
 func Test_Module(t *testing.T) {
@@ -19,7 +19,7 @@ func Test_Module(t *testing.T) {
 		Message interface{}
 	}
 
-	service := func(module *core.DynamicModule) *core.DynamicProvider {
+	service := func(module core.Module) core.Provider {
 		service := module.NewProvider(core.ProviderOptions{
 			Name: PRICE,
 			Factory: pubsub.Listener(module, func(s *pubsub.Subscriber) interface{} {
@@ -38,7 +38,7 @@ func Test_Module(t *testing.T) {
 		return service
 	}
 
-	controller := func(module *core.DynamicModule) *core.DynamicController {
+	controller := func(module core.Module) core.Controller {
 		ctrl := module.NewController("prices")
 
 		ctrl.Post("", func(ctx core.Ctx) error {
@@ -59,19 +59,19 @@ func Test_Module(t *testing.T) {
 		return ctrl
 	}
 
-	priceModule := func(module *core.DynamicModule) *core.DynamicModule {
+	priceModule := func(module core.Module) core.Module {
 		priceModule := module.New(core.NewModuleOptions{
-			Imports:     []core.Module{pubsub.ForFeature("BTC", "ETH", "SOL")},
-			Controllers: []core.Controller{controller},
-			Providers:   []core.Provider{service},
+			Imports:     []core.Modules{pubsub.ForFeature("BTC", "ETH", "SOL")},
+			Controllers: []core.Controllers{controller},
+			Providers:   []core.Providers{service},
 		})
 
 		return priceModule
 	}
 
-	appModule := func() *core.DynamicModule {
+	appModule := func() core.Module {
 		module := core.NewModule(core.NewModuleOptions{
-			Imports: []core.Module{
+			Imports: []core.Modules{
 				pubsub.ForRoot(),
 				priceModule,
 			},
