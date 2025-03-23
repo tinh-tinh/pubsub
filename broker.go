@@ -136,7 +136,7 @@ func (b *Broker) GetSubscribers(topic string) int {
 // The message is delivered to all active subscribers in all topics.
 //
 // The message is sent to the subscribers asynchronously.
-func (b *Broker) Broadcast(msg string) {
+func (b *Broker) Broadcast(msg any) {
 	for topic := range b.topics {
 		for _, s := range b.topics[topic] {
 			m := NewMessage(topic, msg)
@@ -152,7 +152,7 @@ func (b *Broker) Broadcast(msg string) {
 // The message is delivered to all active subscribers of the specified topic.
 // The message is sent to the subscribers asynchronously. If a subscriber is
 // inactive, it will not receive the message.
-func (b *Broker) Publish(topic string, msg string) {
+func (b *Broker) Publish(topic string, msg any) {
 	b.mutex.RLock()
 	topics := []string{topic}
 	if b.opt.Wildcard {
