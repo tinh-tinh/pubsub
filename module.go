@@ -82,9 +82,9 @@ func InjectSubscriber(module core.Module) *Subscriber {
 	return subscriber
 }
 
-func Listener(module core.Module, fnc func(*Subscriber) interface{}) core.Factory {
-	return func(param ...interface{}) interface{} {
+func Listener(module core.Module, fnc func(sub *Subscriber, params ...any) interface{}) core.Factory {
+	return func(params ...interface{}) interface{} {
 		subscriber := InjectSubscriber(module)
-		return fnc(subscriber)
+		return fnc(subscriber, params...)
 	}
 }
