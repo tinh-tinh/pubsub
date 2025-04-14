@@ -31,7 +31,7 @@ func ForRoot() core.Modules {
 // managing the subscribers and topics. The broker is injected into a module
 // by calling ForRoot() and then can be retrieved from the module by calling
 // InjectBroker.
-func InjectBroker(module core.Module) *Broker {
+func InjectBroker(module core.RefProvider) *Broker {
 	broker, ok := module.Ref(BROKER).(*Broker)
 	if !ok {
 		return nil
@@ -74,7 +74,7 @@ func ForFeature(topics ...string) core.Modules {
 // is subscribed to. The subscriber is injected into a module by calling
 // ForFeature() and then can be retrieved from the module by calling
 // InjectSubscriber.
-func InjectSubscriber(module core.Module) *Subscriber {
+func InjectSubscriber(module core.RefProvider) *Subscriber {
 	subscriber, ok := module.Ref(SUBSCRIBER).(*Subscriber)
 	if !ok {
 		return nil

@@ -64,7 +64,7 @@ func Test_MaxSubscribers(t *testing.T) {
 		MaxSubscribers: 10,
 	})
 
-	for i := 0; i < 15; i++ {
+	for i := range 15 {
 		s := broker.AddSubscriber()
 		if i < 10 {
 			require.NotNil(t, s)
