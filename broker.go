@@ -80,7 +80,6 @@ func (b *Broker) Subscribe(s *Subscriber, topic string) {
 
 	s.AddTopic(topic)
 	b.topics[topic][s.ID] = s
-	fmt.Printf("%s subscribed for topic: %s\n", s.ID, topic)
 }
 
 // Unsubscribe removes the subscriber from the specified topic.
@@ -97,7 +96,6 @@ func (b *Broker) Unsubscribe(s *Subscriber, topic string) {
 
 	delete(b.topics[topic], s.ID)
 	s.RemoveTopic(topic)
-	fmt.Printf("%s unsubscribed for topic: %s\n", s.ID, topic)
 }
 
 // RemoveSubscriber removes the subscriber from all topics and the broker.
