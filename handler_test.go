@@ -23,13 +23,8 @@ func Test_Handler(t *testing.T) {
 		handler := pubsub.NewHandler(module)
 		priceService := module.Ref(PRICE).(*PriceService)
 
-		handler.Listen(func(sub *pubsub.Subscriber) {
-			go (func() {
-				msg, ok := <-sub.GetMessages()
-				if ok {
-					priceService.Message = msg.GetContent()
-				}
-			})()
+		handler.Listen(func(msg *pubsub.Message) {
+			priceService.Message = msg.GetContent()
 		}, "BTC", "ETH", "SOL")
 
 		return handler
