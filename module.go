@@ -82,6 +82,7 @@ func InjectSubscriber(module core.RefProvider) *Subscriber {
 	return subscriber
 }
 
+// Deprecated
 func Listener(module core.Module, fnc func(sub *Subscriber, params ...any) interface{}) core.Factory {
 	return func(params ...interface{}) interface{} {
 		subscriber := InjectSubscriber(module)
