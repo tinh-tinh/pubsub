@@ -27,7 +27,6 @@ func (h *Handler) Listen(factory HandleFnc, topics ...string) {
 
 		}
 	}
-
 	go (func(sub *Subscriber) {
 		msg, ok := <-sub.GetMessages()
 		if ok {
