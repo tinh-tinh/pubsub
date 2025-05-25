@@ -28,8 +28,13 @@ jobs:
     - name: Decide if tests should run
       id: set_run_tests
       run: |
-        if [[ ("$GITHUB_EVENT_NAME" == "push" && ( "$GITHUB_HEAD_COMMIT_MESSAGE" == fix:* || "$GITHUB_HEAD_COMMIT_MESSAGE" == feat:* || "$GITHUB_HEAD_COMMIT_MESSAGE" == refactor:* || "$GITHUB_HEAD_COMMIT_MESSAGE" == perf:* )) || \
-              ("$GITHUB_EVENT_NAME" == "pull_request" && ( "$GITHUB_PULL_REQUEST_TITLE" == fix:* || "$GITHUB_PULL_REQUEST_TITLE" == feat:* || "$GITHUB_PULL_REQUEST_TITLE" == refactor:* || "$GITHUB_PULL_REQUEST_TITLE" == perf:* )) ]]; then
+        if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+          echo "should_run_tests=true" >> $GITHUB_OUTPUT
+        elif [[ "$GITHUB_EVENT_NAME" == "pull_request" && 
+                ( "$GITHUB_PULL_REQUEST_TITLE" == fix:* || 
+                  "$GITHUB_PULL_REQUEST_TITLE" == feat:* || 
+                  "$GITHUB_PULL_REQUEST_TITLE" == refactor:* || 
+                  "$GITHUB_PULL_REQUEST_TITLE" == perf:* ) ]]; then
           echo "should_run_tests=true" >> $GITHUB_OUTPUT
         else
           echo "should_run_tests=false" >> $GITHUB_OUTPUT
