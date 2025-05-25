@@ -13,7 +13,7 @@ func NewHandler(module core.Module) *Handler {
 	}
 }
 
-type HandleFnc func(sub *Subscriber)
+type HandleFnc func(sub *Message)
 
 func (h *Handler) Listen(factory HandleFnc, topics ...string) {
 	broken := InjectBroker(h.module)
@@ -28,5 +28,10 @@ func (h *Handler) Listen(factory HandleFnc, topics ...string) {
 		}
 	}
 
-	factory(sub)
+	go (func(sub *Subscriber) {
+		msg, ok := <-sub.GetMessages()
+		if ok {
+			factory(msg)
+		}
+	})(sub)
 }
