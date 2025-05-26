@@ -72,7 +72,7 @@ func Test_Module(t *testing.T) {
 	appModule := func() core.Module {
 		module := core.NewModule(core.NewModuleOptions{
 			Imports: []core.Modules{
-				pubsub.ForRoot(),
+				pubsub.ForRoot(pubsub.BrokerOptions{}),
 				priceModule,
 			},
 		})
@@ -193,7 +193,7 @@ func TestIndependent(t *testing.T) {
 	appModule := func() core.Module {
 		module := core.NewModule(core.NewModuleOptions{
 			Imports: []core.Modules{
-				pubsub.ForRoot(),
+				pubsub.ForRoot(pubsub.BrokerOptions{}),
 				currencyModule,
 				priceModule,
 			},

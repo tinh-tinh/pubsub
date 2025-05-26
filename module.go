@@ -12,12 +12,12 @@ const SUBSCRIBER core.Provide = "subscriber"
 // The module provides the broker as a dependency to other modules. The broker
 // is the central entity of the pub/sub pattern. It is responsible for managing
 // the subscribers and topics.
-func ForRoot() core.Modules {
+func ForRoot(opt BrokerOptions) core.Modules {
 	return func(module core.Module) core.Module {
 		pubModule := module.New(core.NewModuleOptions{})
 		pubModule.NewProvider(core.ProviderOptions{
 			Name:  BROKER,
-			Value: NewBroker(),
+			Value: NewBroker(opt),
 		})
 		pubModule.Export(BROKER)
 

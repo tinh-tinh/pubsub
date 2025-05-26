@@ -32,13 +32,11 @@ type Broker struct {
 // When a subscriber subscribes to a topic, the subscriber is added to a list
 // of subscribers for that topic. When a message is published to a topic, all
 // subscribers of that topic will receive the message.
-func NewBroker(opt ...BrokerOptions) *Broker {
+func NewBroker(opt BrokerOptions) *Broker {
 	broker := &Broker{
 		subscribers: Subscribers{},
 		topics:      map[string]Subscribers{},
-	}
-	if len(opt) > 0 {
-		broker.opt = opt[0]
+		opt:         opt,
 	}
 
 	return broker
