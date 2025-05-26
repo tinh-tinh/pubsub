@@ -9,7 +9,7 @@ import (
 )
 
 func Test_Broker(t *testing.T) {
-	broker := pubsub.NewBroker()
+	broker := pubsub.NewBroker(pubsub.BrokerOptions{})
 
 	sub := broker.AddSubscriber()
 	sub2 := broker.AddSubscriber()
@@ -29,7 +29,7 @@ func Test_Broker(t *testing.T) {
 }
 
 func Test_Pubsub(t *testing.T) {
-	broker := pubsub.NewBroker()
+	broker := pubsub.NewBroker(pubsub.BrokerOptions{})
 
 	sub := broker.AddSubscriber()
 	sub2 := broker.AddSubscriber()

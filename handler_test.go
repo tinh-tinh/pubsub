@@ -72,7 +72,7 @@ func Test_Handler(t *testing.T) {
 	appModule := func() core.Module {
 		module := core.NewModule(core.NewModuleOptions{
 			Imports: []core.Modules{
-				pubsub.ForRoot(),
+				pubsub.ForRoot(pubsub.BrokerOptions{}),
 				priceModule,
 			},
 		})
