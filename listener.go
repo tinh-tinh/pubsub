@@ -2,20 +2,20 @@ package pubsub
 
 import "github.com/tinh-tinh/tinhtinh/v2/core"
 
-type Handler struct {
+type Listener struct {
 	core.DynamicProvider
 	module core.Module
 }
 
-func NewHandler(module core.Module) *Handler {
-	return &Handler{
+func NewListener(module core.Module) *Listener {
+	return &Listener{
 		module: module,
 	}
 }
 
-type HandleFnc func(sub *Message)
+type ListenFnc func(sub *Message)
 
-func (h *Handler) Listen(factory HandleFnc, topics ...string) {
+func (h *Listener) Listen(factory ListenFnc, topics ...string) {
 	broken := InjectBroker(h.module)
 	if broken == nil {
 		panic("broken not defined")
@@ -24,7 +24,6 @@ func (h *Handler) Listen(factory HandleFnc, topics ...string) {
 	if len(topics) > 0 {
 		for _, topic := range topics {
 			broken.Subscribe(sub, topic)
-
 		}
 	}
 

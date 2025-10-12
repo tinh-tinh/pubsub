@@ -5,7 +5,8 @@ import (
 )
 
 const BROKER core.Provide = "broker"
-const SUBSCRIBER core.Provide = "subscriber"
+
+// const SUBSCRIBER core.Provide = "subscriber"
 
 // ForRoot returns a module that provides the broker.
 //
@@ -45,28 +46,28 @@ func InjectBroker(module core.RefProvider) *Broker {
 // to the given topics. The subscriber is associated with the broker, which is injected
 // into the module. This allows the subscriber to receive messages published to the
 // specified topics.
-func ForFeature(topics ...string) core.Modules {
-	return func(module core.Module) core.Module {
-		subModule := module.New(core.NewModuleOptions{})
-		subModule.NewProvider(core.ProviderOptions{
-			Name: SUBSCRIBER,
-			Factory: func(param ...interface{}) interface{} {
-				broker := param[0].(*Broker)
-				s := broker.AddSubscriber()
-				if len(topics) > 0 {
-					for _, topic := range topics {
-						broker.Subscribe(s, topic)
-					}
-				}
-				return s
-			},
-			Inject: []core.Provide{BROKER},
-		})
-		subModule.Export(SUBSCRIBER)
+// func ForFeature(topics ...string) core.Modules {
+// 	return func(module core.Module) core.Module {
+// 		subModule := module.New(core.NewModuleOptions{})
+// 		subModule.NewProvider(core.ProviderOptions{
+// 			Name: SUBSCRIBER,
+// 			Factory: func(param ...interface{}) interface{} {
+// 				broker := param[0].(*Broker)
+// 				s := broker.AddSubscriber()
+// 				if len(topics) > 0 {
+// 					for _, topic := range topics {
+// 						broker.Subscribe(s, topic)
+// 					}
+// 				}
+// 				return s
+// 			},
+// 			Inject: []core.Provide{BROKER},
+// 		})
+// 		subModule.Export(SUBSCRIBER)
 
-		return subModule
-	}
-}
+// 		return subModule
+// 	}
+// }
 
 // InjectSubscriber returns the subscriber from the given module.
 //
@@ -74,18 +75,18 @@ func ForFeature(topics ...string) core.Modules {
 // is subscribed to. The subscriber is injected into a module by calling
 // ForFeature() and then can be retrieved from the module by calling
 // InjectSubscriber.
-func InjectSubscriber(module core.RefProvider) *Subscriber {
-	subscriber, ok := module.Ref(SUBSCRIBER).(*Subscriber)
-	if !ok {
-		return nil
-	}
-	return subscriber
-}
+// func InjectSubscriber(module core.RefProvider) *Subscriber {
+// 	subscriber, ok := module.Ref(SUBSCRIBER).(*Subscriber)
+// 	if !ok {
+// 		return nil
+// 	}
+// 	return subscriber
+// }
 
-// Deprecated
-func Listener(module core.Module, fnc func(sub *Subscriber, params ...any) interface{}) core.Factory {
-	return func(params ...interface{}) interface{} {
-		subscriber := InjectSubscriber(module)
-		return fnc(subscriber, params...)
-	}
-}
+// // Deprecated
+// func Listener(module core.Module, fnc func(sub *Subscriber, params ...any) interface{}) core.Factory {
+// 	return func(params ...interface{}) interface{} {
+// 		subscriber := InjectSubscriber(module)
+// 		return fnc(subscriber, params...)
+// 	}
+// }
