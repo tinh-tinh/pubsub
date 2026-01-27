@@ -28,8 +28,7 @@ func (h *Listener) Listen(factory ListenFnc, topics ...string) {
 	}
 
 	go (func(sub *Subscriber) {
-		msg, ok := <-sub.GetMessages()
-		if ok {
+		for msg := range sub.GetMessages() {
 			factory(msg)
 		}
 	})(sub)
